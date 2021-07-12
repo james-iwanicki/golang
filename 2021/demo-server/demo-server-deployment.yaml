@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: demo-server-v1
+ namespace: jeevan-namespace
+ labels:
+  app: demo-server
+  version: v1
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: demo-server
+   version: v1
+ template:
+  metadata:
+   labels:
+    app: demo-server
+    version: v1
+  spec:
+   containers:
+   - name: demo-server
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/demo-server
+     ports:
+     - containerPort: 80

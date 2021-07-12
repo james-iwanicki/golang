@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: rest-api-server-service
+ namespace: jeevan-namespace
+spec:
+ selector:
+  app: rest-api-server
+ ports:
+ - name: tcp
+   port: 80 

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: shell-client
+ namespace: jeevan-namespace
+spec:
+ selector:
+  matchLabels:
+   app: shell-client
+ template:
+  metadata:
+   labels:
+    app: shell-client
+  spec:
+   containers:
+   - name: shell-client1
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+   - name: shell-client2
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2

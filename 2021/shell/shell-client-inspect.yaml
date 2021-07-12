@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: shell-client-inspect
+ namespace: jeevan-namespace
+spec:
+ selector:
+  matchLabels:
+   app: shell-client-inspect
+ template:
+  metadata:
+   labels:
+    app: shell-client-inspect
+  spec:
+   containers:
+   - name: shell-client-inspect
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client-inspect
+     securityContext:
+      privileged: true
+     volumeMounts:
+     - name: cni-conf-dir
+       mountPath: /etc/cni/net.d
+     - name: cni-bin-dir
+       mountPath: /opt/cni/bin
+     - name: host-proc
+       mountPath: /proc
+   volumes:
+   - name: cni-conf-dir
+     hostPath:
+      path: /etc/cni/net.d
+   - name: cni-bin-dir
+     hostPath:
+      path: /opt/cni/bin
+   - name: host-proc
+     hostPath:
+      path: /proc 
