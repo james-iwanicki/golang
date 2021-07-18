@@ -7,5 +7,5 @@ spec:
  selector:
   app: rest-api-server
  ports:
- - name: tcp
-   port: 80 
+ - name: https
+   port: 443

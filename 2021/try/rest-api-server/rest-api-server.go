@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"crypto/tls"
 )
 
 type User struct {
@@ -30,7 +31,6 @@ func get_user_func(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, db_err)
 		return
 	}
-	defer db.Close()
 
 	stmt, stmt_err := db.Prepare("select Age from users where Name=?")
 	if stmt_err != nil {
@@ -43,7 +43,7 @@ func get_user_func(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, rows_err)
 		return
 	}
-
+	
 	var Age int
 	for rows.Next() {
 		err := rows.Scan(&Age)
@@ -51,15 +51,16 @@ func get_user_func(c *gin.Context) {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+		fmt.Printf("%s:%d\n", Name, Age)
 		c.Writer.WriteHeader(http.StatusOK)
-		c.Writer.Write([]byte(fmt.Sprintf("%s %d\n", Name, Age )))
+		c.Writer.Write([]byte(fmt.Sprintf("%s %d\n", Name, Age)))
 	}
 }
 
 func add_user_func(c *gin.Context) {
 	var user User
 	c.Bind(&user)
-	
+
 	db, db_err := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
 	if db_err != nil {
 		c.AbortWithError(http.StatusBadRequest, db_err)
@@ -82,7 +83,7 @@ func add_user_func(c *gin.Context) {
 
 func delete_user_func(c *gin.Context) {
 	Name := c.Query("Name")
-
+	
 	db, db_err := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
 	if db_err != nil {
 		c.AbortWithError(http.StatusBadRequest, db_err)
@@ -110,5 +111,22 @@ func main() {
 		v.POST("/add_user", add_user_func)
 		v.DELETE("/delete_user", delete_user_func)
 	}
-	router.Run(":80")
+	//router.Run(":80")
+	//router.RunTLS(":443", "/etc/secret-volume/tls.crt", "/etc/secret-volume/tls.key")
+
+	var x509 tls.Certificate
+	x509, err := tls.LoadX509KeyPair("/etc/secret-volume/tls.crt", "/etc/secret-volume/tls.key")
+	if err != nil {
+		return
+	}
+
+	server := &http.Server {
+		Addr: ":443",
+		Handler: router,
+		TLSConfig: &tls.Config {
+			Certificates: []tls.Certificate{ x509 },
+		},
+	}
+	server.ListenAndServeTLS("", "")
+
 }
