@@ -3,50 +3,35 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"fmt"
 	"net/url"
-	"io/ioutil"
-	"encoding/json"
+	"crypto/tls"
+	"crypto/x509"
 	"bytes"
+	"fmt"
+	"io/ioutil"
 )
+
+type User struct {
+	ID int `json: "ID"`
+	Name string `json: "Name"`
+	Age int `json: "Age"`
+}
 
 var (
 	router *gin.Engine
 )
 
-type User struct {
-	ID int	`json: "ID"`
-	Name string `json: "Name"`
-	Age int `json: "Age"`
-}
-
 func init() {
 	router = gin.Default()
 }
 
-func add_user_func(c *gin.Context) {
-	var user User
-	c.Bind(&user)
-
-	json_data, jerr := json.Marshal(user)
-	if jerr != nil {
-		c.AbortWithError(http.StatusBadRequest, jerr)
-		return
-	}
-
-	_, perr := http.Post("http://rest-api-server-service/apis/v1/add_user", "application/json", bytes.NewBuffer(json_data))
-	if perr != nil {
-		c.AbortWithError(http.StatusBadRequest, perr)
-		return
-	}
-}
-
-func get_user_func(c *gin.Context) {
+func get_user_secure_func(c *gin.Context) {
 	Name := c.Query("Name")
 
-	parse, perr := url.Parse("http://rest-api-server-service/apis/v1/get_user")
-	if perr != nil {
-		c.AbortWithError(http.StatusBadRequest, perr)
+	//parse, parse_err := url.Parse("https://rest-api-server-service/apis/v1/get_user")
+	parse, parse_err := url.Parse("https://rest-api-server-service.jeevan-namespace.svc.cluster.local/apis/v1/get_user")
+	if parse_err != nil {
+		c.AbortWithError(http.StatusBadRequest, parse_err)
 		return
 	}
 
@@ -54,60 +39,59 @@ func get_user_func(c *gin.Context) {
 	values.Add("Name", Name)
 	parse.RawQuery = values.Encode()
 
-	resp, rerr := http.Get(parse.String())
-	if rerr != nil {
-		c.AbortWithError(http.StatusBadRequest, rerr)
+	var jdata []byte
+	req, req_err := http.NewRequest(http.MethodGet, parse.String(), bytes.NewBuffer(jdata))
+	if req_err != nil {
+		c.AbortWithError(http.StatusBadRequest, req_err)
+		return
+	}
+	
+	rootca, rootca_err := ioutil.ReadFile("/etc/secret-volume/ca.crt")
+	if rootca_err != nil {
+		c.AbortWithError(http.StatusBadRequest, rootca_err)
 		return
 	}
 
-	defer resp.Body.Close()
-	data, derr := ioutil.ReadAll(resp.Body)
-	if derr != nil {
-		c.AbortWithError(http.StatusBadRequest, derr)
+	kp, kp_err := tls.LoadX509KeyPair("/etc/secret-volume/tls.crt", "/etc/secret-volume/tls.key")
+	if kp_err != nil {
+		c.AbortWithError(http.StatusBadRequest, kp_err)
 		return
 	}
+	
+	certpool := x509.NewCertPool()
+	certpool.AppendCertsFromPEM(rootca)
+	client := &http.Client {
+		Transport: &http.Transport {
+			TLSClientConfig: &tls.Config {
+				RootCAs: certpool,
+				Certificates: []tls.Certificate { kp },
+				//InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	resp, resp_err := client.Do(req)
+	if resp_err != nil {
+		c.AbortWithError(http.StatusBadRequest, resp_err)
+		return
+	}
+	defer resp.Body.Close()
+	
+	data, data_err := ioutil.ReadAll(resp.Body)
+	if data_err != nil {
+		c.AbortWithError(http.StatusBadRequest, data_err)
+		return
+	}
+
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write([]byte(fmt.Sprintf("%s\n", string(data))))
-	
-}
-
-func delete_user_func(c *gin.Context) {
-	Name := c.Query("Name")
-	
-	parse, perr := url.Parse("http://rest-api-server-service/apis/v1/delete_user")
-	if perr != nil {
-		c.AbortWithError(http.StatusBadRequest, perr)
-		return
-	}
-
-	values := url.Values{}
-	values.Add("Name", Name)
-	parse.RawQuery = values.Encode()
-	
-	var jdata []byte
-
-	req, rerr := http.NewRequest(http.MethodDelete, parse.String(), bytes.NewBuffer(jdata))
-	//resp, rerr := http.Delete(parse.String())
-	if rerr != nil {
-		c.AbortWithError(http.StatusBadRequest, rerr)
-		return
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	defer resp.Body.Close()
 }
 
 func main() {
-	v := router.Group("apis/v1")
+	v := router.Group("/apis/v1")
 	{
-		v.POST("add_user", add_user_func)
-		v.GET("get_user", get_user_func)
-		v.DELETE("delete_user", delete_user_func)	
+		v.GET("/get_user", get_user_secure_func)
 	}
 	router.Run(":80")
 }
+	

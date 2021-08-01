@@ -1,0 +1,49 @@
+# NOTE: 
+# 1. Modify server_csr.conf & client_csr.conf as per your environment
+# 2. Modify server.yaml & client.yaml to add the respective keys/certs in them
+# 3. Both client and server need to share the same root CA so that they can validate each others certificates
+
+# Generate Root CA (ORN XN KOOS)
+openssl req -new -x509 -nodes -keyout ca.key -out ca.crt -subj "/CN=my-ca"
+
+
+# ------
+# SERVER
+# ------
+# Generate Server private key 
+openssl genrsa -out server.key 2048
+
+# Generate Server CSR(ORN KSOC)
+openssl req -new -key server.key -subj "/CN=rest-api-server-service.jeevan-namespace.svc.cluster.local" -out server.csr -config server_csr.conf
+
+# Generate Server Certificate (XRI CCC OE)
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 365 -out server.crt -extensions v3_ext -extfile server_csr.conf
+
+# Generate base64 encoding for server.key, server.crt and ca.crt
+cat server.key| base64 -w 0 # Add it to tls.key in server.yaml
+cat server.crt| base64 -w 0 # Add it to tls.crt in server.yaml
+cat ca.crt | base64 -w 0    # Add it to ca.crt in server.yaml
+
+# Create kubernetes server secret 
+kubectl apply -f ./server.yaml
+
+
+# ------
+# CLIENT
+# ------
+# Generate Server private key 
+openssl genrsa -out client.key 2048
+
+# Generate Client CSR
+openssl req -new -key client.key -subj "/CN=rest-api-client-service.jeevan-namespace.svc.cluster.local" -out client.csr -config client_csr.conf
+
+# Generate Client Certificate 
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -extensions v3_ext -extfile client_csr.conf
+
+# Generate base64 encoding for server.key, server.crt and ca.crt
+cat client.key| base64 -w 0 # Add it to tls.key in client.yaml
+cat client.crt| base64 -w 0 # Add it to tls.crt in client.yaml
+cat ca.crt | base64 -w 0    # Add it to ca.crt in client.yaml
+
+# Create kubernetes client secret 
+kubectl apply -f ./client.yaml

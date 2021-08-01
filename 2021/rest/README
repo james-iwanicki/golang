@@ -1,0 +1,81 @@
+A demonstration of using mTLS based REST API between client-server running in Kubernetes environment.
+
+DESIGN
+------
+
+1. Consists of two deployments Server and Client
+2. The world accessible Client uses LoadBalancer type kubernetes service to provide access over Internet.
+3. The Client support GET, POST and DELETE verbs
+4. The Server can only be accessed internally from Client over https with mTLS.
+5. The Server talks to database on Client's request and provides results.
+
+
+
+INSTRUCTIONS
+------------
+
+# Setup SSL keys and certificates
+	Follow instructions in ssl/README to generate client/server certificates and then create respective Kubernetes secrets for them.
+
+# Setup database
+	1. Follow instructions on https://kubernetes.io/docs/tasks/run-application/run-single-instance-stateful-application/ and setup mysql in the cluster.
+	2. Run a client to setup database "kubectl run -it --rm --image=mysql:5.6 --restart=Never mysql-client -- mysql -h mysql -ppassword"
+	3. Create database "mysql> CREATE DATABASE test;" and switch to it "mysql> USE test"
+	4. Add a table
+	CREATE TABLE users
+	(
+	  ID 	INT unsigned NOT NULL AUTO_INCREMENT, # Unique ID for the record
+	  Name  VARCHAR(150) NOT NULL,                # Name 
+	  Age   INT				      # Age
+  	  PRIMARY KEY     (ID)                        # Make the id the primary key
+	);
+
+# Login into AWS container repository (replace the repository name to your repository)
+	aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 134048686860.dkr.ecr.us-west-2.amazonaws.com	
+
+# Create REST API Server 
+	cd rest-api-server
+	
+	# Delete any existing rest-api-server deployments. Replace the "jeevan-namespace" with your namespace
+	kubectl delete deployment.apps/rest-api-server -n jeevan-namespace; 
+
+	# Delete any local images
+	docker rmi -f $(docker images -a -q); 
+	
+	# Build the rest-api-server docker container image
+	docker build -t rest-api-server .; 
+	
+	# Tag and push image to AWS container repository (replace the repository name to your repository)
+	docker tag rest-api-server 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server; 
+	docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server;
+
+	# Launch REST API Server deployment and service
+	kubectl apply -f ./rest-api-server-deployment.yaml
+	kubectl apply -f ./rest-api-server-service.yaml
+
+# Create REST API Client
+	cd rest-api-client
+	# Delete any existing rest-api-client deployments. Replace the "jeevan-namespace" with your namespace
+	kubectl delete deployment.apps/rest-api-client -n jeevan-namespace; 
+	
+	# Delete any local images
+	docker rmi -f $(docker images -a -q); 
+
+	# Build the rest-api-client docker container image
+	docker build -t rest-api-client .; 
+
+	# Tag and push image to AWS container repository (replace the repository name to your repository)
+	docker tag rest-api-client 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client; 
+	docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client;
+
+	# Launch REST API client deployment and service
+	kubectl apply -f ./rest-api-client-deployment.yaml
+	kubectl apply -f ./rest-api-client-service.yaml
+
+# Test
+	# GET (read a record from database)
+	curl http://ac4d684a0e4a144b384d0e58278f1dbd-144156095.us-west-2.elb.amazonaws.com/apis/v1/get_user?Name=Jeevan
+
+	# POST (write a record to database)
+
+	# DELETE (remove a record from database)

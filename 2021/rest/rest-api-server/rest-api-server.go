@@ -2,121 +2,90 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
+	"net/http"
+	"crypto/tls"
+	"fmt"
+	"crypto/x509"
+	"io/ioutil"
 )
+
+type User struct {
+	ID int `json "ID"`
+	Name string `json "Name"`
+	Age int `json "Age"`
+}
 
 var (
 	router *gin.Engine
 )
 
-type User struct {
-	ID int	`json: "ID"`
-	Name string `json: "Name"`
-	Age int	`json: "Age"`
-}
-
 func init() {
 	router = gin.Default()
 }
 
-func add_user_func(c *gin.Context) {
-	var user User
-	c.Bind(&user)
-
-	db, derr := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
-	if derr != nil {
-		c.AbortWithError(http.StatusBadRequest, derr)
-		return
-	}
-
-	stmt, serr := db.Prepare("insert users set Name=?, Age=?")
-	if serr != nil {
-		c.AbortWithError(http.StatusBadRequest, serr)
-		return
-	}
-
-	rows, rerr := stmt.Query(user.Name, user.Age)
-	if rerr != nil {
-		c.AbortWithError(http.StatusBadRequest, rerr)
-		return
-	}
-
-	err := rows.Err()
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	
-}
-
-func get_user_func(c *gin.Context) {
+func get_user_secure_func(c *gin.Context) {
 	Name := c.Query("Name")
 
-	db, derr := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
-	if derr != nil {
-		c.AbortWithError(http.StatusBadRequest, derr)
+	db, db_err := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
+	if db_err != nil {
+		c.AbortWithError(http.StatusBadRequest, db_err)
 		return
 	}
 	defer db.Close()
 
-	stmt, serr := db.Prepare("select age from users where Name=?")
-	if serr != nil {
-		c.AbortWithError(http.StatusBadRequest, serr)
+	stmt, stmt_err := db.Prepare("select Age from users where Name=?")
+	if stmt_err != nil {
+		c.AbortWithError(http.StatusBadRequest, stmt_err)
 		return
 	}
 
-	rows, rerr := stmt.Query(Name)
-	if rerr != nil {
-		c.AbortWithError(http.StatusBadRequest, rerr)
+	rows, rows_err  := stmt.Query(Name)
+	if rows_err != nil {
+		c.AbortWithError(http.StatusBadRequest, rows_err)
 		return
 	}
-
+	
 	var Age int
 	for rows.Next() {
 		err := rows.Scan(&Age)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, rerr)
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		fmt.Printf("%d\n", Age)
 		c.Writer.WriteHeader(http.StatusOK)
-		c.Writer.Write([]byte(fmt.Sprintf("Age:%d\n", Age)))
-	}
-}
-
-func delete_user_func(c *gin.Context) {
-	Name := c.Query("Name")
-
-	db, derr := sql.Open("mysql", "root:password@tcp(mysql:3306)/test")
-	if derr != nil {
-		c.AbortWithError(http.StatusBadRequest, derr)
-		return
-	}
-	defer db.Close()
-
-	stmt, serr := db.Prepare("delete from users where Name=?")
-	if serr != nil {
-		c.AbortWithError(http.StatusBadRequest, serr)
-		return
+		c.Writer.Write([]byte(fmt.Sprintf("%s %d\n", Name, Age)))	
 	}
 
-	_, rerr := stmt.Query(Name)
-	if rerr != nil {
-		c.AbortWithError(http.StatusBadRequest, rerr)
-		return
-	}
-	
 }
 
 func main() {
-	v := router.Group("apis/v1")
+	v := router.Group("/apis/v1")
 	{
-		v.POST("add_user", add_user_func)
-		v.GET("get_user", get_user_func)
-		v.DELETE("delete_user", delete_user_func)
+		v.GET("/get_user", get_user_secure_func)
 	}
-	router.Run(":80")
+	x509KP, x509KP_err := tls.LoadX509KeyPair("/etc/secret-volume/tls.crt", "/etc/secret-volume/tls.key")
+	if x509KP_err != nil {
+		return
+	}
+
+	//rootca, rootca_err := ioutil.ReadFile("/etc/secret-volume/tls.crt")
+	rootca, rootca_err := ioutil.ReadFile("/etc/secret-volume/ca.crt")
+	if rootca_err != nil {
+		return
+	}
+	certpool := x509.NewCertPool()
+	certpool.AppendCertsFromPEM(rootca)
+	
+	server := &http.Server {
+		Addr: ":443",
+		Handler: router,
+		TLSConfig: &tls.Config{
+			Certificates: []tls.Certificate { x509KP },
+			ClientCAs: certpool,
+			ClientAuth: tls.RequireAndVerifyClientCert,
+		},
+	}
+	server.ListenAndServeTLS("", "")
 }

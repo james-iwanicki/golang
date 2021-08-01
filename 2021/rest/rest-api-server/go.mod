@@ -1,4 +1,4 @@
-module github.com/jeevan-savant/05032021_Demo/rest/rest-api-server
+module github.com/jeevan-savant/golang/2021/try/rest-api-server-n
 
 go 1.15
 
