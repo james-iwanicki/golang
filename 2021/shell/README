@@ -1,0 +1,77 @@
+Build instructions:
+------------------
+	Change the repository locations for your setup.
+		shell-client1:
+			docker build -t shell-client1 .;  
+			docker tag shell-client1 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1; 
+			docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1;
+                                
+		shell-client2:
+			docker build -t shell-client2 .;  
+			docker tag shell-client2 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2; 
+			docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2;
+
+Usage instructions:
+------------------
+
+1. Create the test application deployment (change the namespace to your configuration)
+	kubectl apply -f ./shell-client-deployment.yaml
+
+2. Get the test application POD information
+	kubectl get all -n jeevan-namespace
+	NAME                                   READY   STATUS    RESTARTS   AGE
+	pod/shell-client-474nv                 2/2     Running   0          5s
+	pod/shell-client-55gtc                 2/2     Running   0          5s
+
+	NAME                          DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+	daemonset.apps/shell-client   2         2         2       2            2           <none>          5s
+
+3. Pick a test application POD and verify it has two containers in it. Also note the IP of the POD, you will use it in step 6.b below.
+	kubectl describe pod/shell-client-474nv -n jeevan-namespace
+	Name:         shell-client-474nv
+	Namespace:    jeevan-namespace
+	Node:         ip-172-31-27-50.us-west-2.compute.internal/172.31.27.50
+	IP:           172.31.23.125
+	Containers:
+	  shell-client1:
+	    Container ID:   docker://43e16862c4ab28df10acc09e760e5c3917391069abfd460e35388aa87f02ba1e
+	    Image:          134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+	  shell-client2:
+	    Container ID:   docker://08de70e0047ae05a092efa19a839f66233e76f60348085088ab63c852b612367
+	    Image:          134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2
+
+4. Shell into the “shell-client1” container of test application POD. For convenience you cant “cat /root/whoami” to find which container in POD you are on.
+	kubectl exec -it pod/shell-client-474nv -c shell-client1 -n jeevan-namespace -- /bin/bash
+	root@shell-client-474nv:/#
+	root@shell-client-474nv:/# cat /root/whoami
+	shell-client1
+
+5. In another terminal shell into the “shell-client2” container of the same test application POD
+	kubectl exec -it pod/shell-client-474nv -c shell-client2 -n jeevan-namespace -- /bin/bash
+	root@shell-client-474nv:/#
+	root@shell-client-474nv:/# cat /root/whoami
+	shell-client2
+
+6. Test : Web traffic
+	a. On “shell-client2” launch the Web-Server
+
+	root@shell-client-474nv:/# /root/shell-client2-web-server
+	[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+	[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+	- using env:   export GIN_MODE=release
+	- using code:  gin.SetMode(gin.ReleaseMode)
+
+	[GIN-debug] GET    /apis/v1/get_user         --> main.get_user_func (3 handlers)
+	[GIN-debug] Listening and serving HTTP on :80
+
+	b. On “shell-client1” make “curl” request to this web server. The IP is POD’s IP which you noted in step 3 above.
+	root@shell-client-474nv:/# curl http://172.31.23.125/apis/v1/get_user
+	Jeevan
+
+	c. On “shell-client2” you will see the Web-Server log
+	[GIN] 2021/08/04 - 17:04:39 | 200 |       7.655µs |   172.31.23.125 | GET      "/apis/v1/get_user"
+
+	d. You can script the curl on “shell-client1” to make continuous requests.
+
+
