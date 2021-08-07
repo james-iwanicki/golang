@@ -20,6 +20,6 @@ spec:
   spec:
    containers:
    - name: demo-server
-     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/demo-server
+     image: <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/demo-server
      ports:
      - containerPort: 80

@@ -3,13 +3,13 @@ Build instructions:
 	Change the repository locations for your setup.
 		shell-client1:
 			docker build -t shell-client1 .;  
-			docker tag shell-client1 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1; 
-			docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1;
+			docker tag shell-client1 <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1; 
+			docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1;
                                 
 		shell-client2:
 			docker build -t shell-client2 .;  
-			docker tag shell-client2 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2; 
-			docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2;
+			docker tag shell-client2 <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2; 
+			docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2;
 
 Usage instructions:
 ------------------
@@ -35,10 +35,10 @@ Usage instructions:
 	Containers:
 	  shell-client1:
 	    Container ID:   docker://43e16862c4ab28df10acc09e760e5c3917391069abfd460e35388aa87f02ba1e
-	    Image:          134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+	    Image:          <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1
 	  shell-client2:
 	    Container ID:   docker://08de70e0047ae05a092efa19a839f66233e76f60348085088ab63c852b612367
-	    Image:          134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client2
+	    Image:          <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2
 
 4. Shell into the “shell-client1” container of test application POD. For convenience you cant “cat /root/whoami” to find which container in POD you are on.
 	kubectl exec -it pod/shell-client-474nv -c shell-client1 -n jeevan-namespace -- /bin/bash

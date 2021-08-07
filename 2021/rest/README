@@ -31,7 +31,7 @@ INSTRUCTIONS
 	);
 
 # Login into AWS container repository (replace the repository name to your repository)
-	aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 134048686860.dkr.ecr.us-west-2.amazonaws.com	
+	aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com	
 
 # Create REST API Server 
 	cd rest-api-server
@@ -46,8 +46,8 @@ INSTRUCTIONS
 	docker build -t rest-api-server .; 
 	
 	# Tag and push image to AWS container repository (replace the repository name to your repository)
-	docker tag rest-api-server 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server; 
-	docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server;
+	docker tag rest-api-server <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/rest-api-server; 
+	docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/rest-api-server;
 
 	# Launch REST API Server deployment and service
 	kubectl apply -f ./rest-api-server-deployment.yaml
@@ -65,8 +65,8 @@ INSTRUCTIONS
 	docker build -t rest-api-client .; 
 
 	# Tag and push image to AWS container repository (replace the repository name to your repository)
-	docker tag rest-api-client 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client; 
-	docker push 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client;
+	docker tag rest-api-client <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/rest-api-client; 
+	docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/rest-api-client;
 
 	# Launch REST API client deployment and service
 	kubectl apply -f ./rest-api-client-deployment.yaml

@@ -14,4 +14,4 @@ spec:
   spec:
    containers:
    - name: shell-client1
-     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+     image: <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1
