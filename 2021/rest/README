@@ -77,5 +77,7 @@ INSTRUCTIONS
 	curl http://ac4d684a0e4a144b384d0e58278f1dbd-144156095.us-west-2.elb.amazonaws.com/apis/v1/get_user?Name=Jeevan
 
 	# POST (write a record to database)
+	curl -X POST -H 'content-type: application/json' -d '"Name"="Jeevan"&"Age"=35' http://ac4d684a0e4a144b384d0e58278f1dbd-144156095.us-west-2.elb.amazonaws.com/apis/v1/add_user
 
 	# DELETE (remove a record from database)
+	curl -i -X DELETE http://ac4d684a0e4a144b384d0e58278f1dbd-144156095.us-west-2.elb.amazonaws.com/apis/v1/delete_user?Name=Jeevan
