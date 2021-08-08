@@ -84,6 +84,15 @@ INSTRUCTIONS
 
 
 # With Helm
-	helm install --dry-run --debug rest-api-server ./rest-helm --values ./rest-helm/values.yaml
- 	helm install --debug rest-api-server ./rest-helm --values ./rest-helm/values.yaml
+	# Helm charts to install rest-api-server-deployment, rest-api-server-service & rest-api-client-deployment.
+	# Change relicas and image repositories in rest-helm/values.yaml for your environment.
+
+	# To test YAML
+	helm install --dry-run --debug rest-api ./rest-helm --values ./rest-helm/values.yaml
+
+	# To install
+ 	helm install --debug rest-api ./rest-helm --values ./rest-helm/values.yaml
+
+	# To uninstall
+	helm uninstall rest-api
 

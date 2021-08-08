@@ -6,13 +6,13 @@ replicaCount: 3
 
 rest_api_client: 
  image:
-  repository: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client
+  repository: <AWS Account ID>.dkr.ecr.us-west-2.amazonaws.com/rest-api-client
   pullPolicy: Always
   tag: "latest"
 
 rest_api_server: 
  image:
-  repository: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server
+  repository: <AWS Account ID>.dkr.ecr.us-west-2.amazonaws.com/rest-api-server
   pullPolicy: Always
   tag: "latest"
 
