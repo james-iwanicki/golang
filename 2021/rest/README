@@ -81,3 +81,9 @@ INSTRUCTIONS
 
 	# DELETE (remove a record from database)
 	curl -i -X DELETE http://ac4d684a0e4a144b384d0e58278f1dbd-144156095.us-west-2.elb.amazonaws.com/apis/v1/delete_user?Name=Jeevan
+
+
+# With Helm
+	helm install --dry-run --debug rest-api-server ./rest-helm --values ./rest-helm/values.yaml
+ 	helm install --debug rest-api-server ./rest-helm --values ./rest-helm/values.yaml
+

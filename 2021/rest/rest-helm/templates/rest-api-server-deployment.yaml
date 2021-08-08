@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: rest-api-server
+ namespace: jeevan-namespace
+spec:
+ replicas: {{ .Values.replicaCount }}
+ selector:
+  matchLabels:
+   app: rest-api-server
+ template:
+  metadata:
+   labels:
+    app: rest-api-server
+  spec:
+   containers:
+   - name: rest-api-server
+     image: "{{ .Values.rest_api_server.image.repository }}:{{ .Values.rest_api_server.image.tag | default .Chart.AppVersion }}"
+     imagePullPolicy: {{ .Values.rest_api_server.image.pullPolicy }}
+     ports:
+     - containerPort: 443
+     volumeMounts:
+     - name: secret-volume 
+       mountPath: /etc/secret-volume
+   volumes:
+   - name: secret-volume
+     secret:
+      secretName: server-secret
