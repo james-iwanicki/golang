@@ -1,0 +1,6 @@
+domain: savjee.com
+layout: go.kubebuilder.io/v2
+repo: github.com/jeevan-savant/golang/tree/main/2021/rest/rest-operator
+version: 3-alpha
+plugins:
+  go.operator-sdk.io/v2-alpha: {}

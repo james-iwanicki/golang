@@ -1,0 +1,6 @@
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+curl -H "Authorization: Bearer $TOKEN" --cacert $CACERT $K8S/api/v1/pod/namespaces/jeevan-namespace
+
+Add serviceAccountName: jeevan-namespace-service-account to deployment spec

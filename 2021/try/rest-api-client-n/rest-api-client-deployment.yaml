@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: rest-api-client
+ namespace: jeevan-namespace
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: rest-api-client
+ template:
+  metadata:
+   labels:
+    app: rest-api-client
+  spec:
+   containers:
+   - name: rest-api-client
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-client
+     ports:
+     - containerPort: 80
+     volumeMounts:
+     - name: secret-volume
+       mountPath: /etc/secret-volume
+   volumes:
+   - name: secret-volume
+     secret:
+      secretName: client-secret

@@ -1,0 +1,55 @@
+# S-S - P-H NPP
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+ name: demo-server-gateway
+ namespace: jeevan-namespace
+spec:
+ selector:
+  istio: ingressgateway 
+ servers:
+ - port:
+    name: http
+    number: 80
+    protocol: HTTP
+   hosts:
+   - "*"
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+ name: demo-server-virtual-service
+ namespace: jeevan-namespace
+spec:
+ hosts:
+ - "*"
+ gateways:
+ - demo-server-gateway
+ http:
+ - route:
+   - destination:
+      host: demo-server-service
+      subset: v2
+      port:
+       number: 80
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+ name: demo-server-destination-rule
+ namespace: jeevan-namespace
+spec:
+ host: demo-server-service.jeevan-namespace.svc.cluster.local
+ subsets:
+ - name: v1
+   labels:
+    app: demo-server
+    version: v1
+ - name: v2
+   labels:
+    app: demo-server
+    version: v2

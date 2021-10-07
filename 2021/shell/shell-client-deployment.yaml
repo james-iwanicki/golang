@@ -14,6 +14,17 @@ spec:
   spec:
    containers:
    - name: shell-client1
-     image: <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+     image: 10.20.52.114:5000/shell-client1
+     securityContext:
+      privileged: true
+     volumeMounts:
+     - name: host-proc
+       mountPath: /root/proc
    - name: shell-client2
-     image: <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2
+     image: 10.20.52.114:5000/shell-client2
+     securityContext:
+      privileged: true
+   volumes:
+   - name: host-proc
+     hostPath:
+      path: /proc

@@ -1,0 +1,8 @@
+apiVersion: core.savjee.com/v1
+kind: NetScout
+metadata:
+  name: netscout-sample
+spec:
+  # Add fields here
+  foo: bar
+  size: 2

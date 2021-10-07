@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: shell-mirror
+ namespace: jeevan-namespace
+spec:
+ replicas: 1
+ selector:
+  matchLabels:
+   app: shell-mirror
+ template:
+  metadata:
+   labels:
+    app: shell-mirror
+  spec:
+   containers:
+   - name: shell-mirror
+     image: 10.20.52.114:5000/shell-mirror
+     imagePullPolicy: Always
+     ports:
+     - containerPort: 80
+     env:
+     - name: PODNAME
+       valueFrom:      
+        fieldRef:
+         fieldPath: metadata.name
+ 

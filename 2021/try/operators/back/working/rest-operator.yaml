@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: rest-operator
+ namespace: jeevan-namespace
+spec:
+ selector:
+  matchLabels:
+   app: rest-operator
+ template:
+  metadata:
+   labels:
+    app: rest-operator
+  spec:
+   serviceAccountName: jeevan-namespace-cluster-service-account
+   containers:
+   - name: rest-operator
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-operator
+  

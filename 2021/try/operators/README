@@ -1,0 +1,67 @@
+WITHOUT CRD
+-----------
+operator-sdk init --domain=savjee.com --repo=github.com/jeevan-savant/golang/tree/main/2021/rest/rest-operator; 
+operator-sdk create api --group=core --version=v1 --kind=Pod --resource=false --controller=true;
+vi controllers/pod_controller.go
+make run
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 134048686860.dkr.ecr.us-west-2.amazonaws.com
+#Edit Docker file and remove api part
+make docker-build docker-push IMG=134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-operator
+
+[root@ip-172-31-26-34 rest-operator]# cat ../back/rest-operator.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+ name: rest-operator
+ namespace: jeevan-namespace
+spec:
+ selector:
+  matchLabels:
+   app: rest-operator
+ template:
+  metadata:
+   labels:
+    app: rest-operator
+  spec:
+   serviceAccountName: jeevan-namespace-service-account
+   containers:
+   - name: rest-operator
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-operator
+
+
+WITH CRD
+-------
+operator-sdk init --domain=savjee.com --repo=github.com/jeevan-savant/golang/tree/main/2021/rest/rest-operator;
+operator-sdk create api --group=core --version=v1 --kind=NetScout --resource=true --controller=true;
+
+# Add new filed in YAML and Go files
+config/samples/core_v1_netscout.yaml
+api/v1/netscout_types.go
+controllers/netscout_controller.go
+make
+make manifests
+# This adds ./config/crd/bases/core.savjee.com_netscouts.yaml and ./config/rbac/role.yaml
+
+kubectl apply -f config/rbac/role.yaml
+kubectl apply -f config/rbac/role_binding.yaml
+kubectl apply -f ./config/crd/bases/core.savjee.com_netscouts.yaml
+
+# Remove tests from docker-build: test in Dockerfile
+docker rmi -f $(docker images -a -q);  make docker-build docker-push IMG=134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-operator;
+
+# Run locally
+make run
+
+[root@ip-172-31-26-34 rest-operator]# cat NetScout.yaml
+apiVersion: core.savjee.com/v1
+kind: NetScout
+metadata:
+ name: lehi
+spec:
+ foo: bar
+ size: 3
+
+You should see 
+Smita CRDdefault/lehi
+2021-08-21T17:46:37.880-0400    DEBUG   controller-runtime.controller   Successfully Reconciled {"controller": "netscout", "request": "default/lehi"}
+

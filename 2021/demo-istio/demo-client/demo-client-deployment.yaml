@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: demo-client
+ namespace: suhas
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: demo-client
+ template:
+  metadata:
+   labels:
+    app: demo-client
+  spec:
+   containers:
+   - name: demo-client
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/demo-client

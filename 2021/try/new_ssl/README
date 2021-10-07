@@ -1,0 +1,10 @@
+
+#Generate CA Cert and Key 	ORN XN KOOS
+openssl req -new -x509 -nodes -keyout ca.key -out ca.crt -subj '/CN=my-ca' 
+
+#Generate Server Key
+openssl genrsa -out server.key 2048
+#Generate Server CSR
+openssl req -new -key server.key -subj '/CN=localhost' -out server.csr
+#Generate Server Cert
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 365 -out server.crt

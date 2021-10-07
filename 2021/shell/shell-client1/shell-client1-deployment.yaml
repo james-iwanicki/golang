@@ -12,6 +12,7 @@ spec:
    labels:
     app: shell-client1
   spec:
+   serviceAccountName: jeevan-namespace-service-account
    containers:
    - name: shell-client1
-     image: <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/shell-client1

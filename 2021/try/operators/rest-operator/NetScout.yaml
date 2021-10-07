@@ -1,0 +1,7 @@
+apiVersion: core.savjee.com/v1
+kind: NetScout
+metadata:
+ name: lehi
+spec:
+ foo: bar
+ size: 3

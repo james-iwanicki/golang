@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+ name: jeevan-namespace-cluster_rolebinding
+subjects:
+- kind: ServiceAccount
+  name: jeevan-namespace-service-account
+  namespace: jeevan-namespace
+roleRef:
+ kind: ClusterRole
+ apiGroup: rbac.authorization.k8s.io
+ name: jeevan-namespace-cluster-role

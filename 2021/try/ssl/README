@@ -1,0 +1,17 @@
+#ORN XN KOOS
+openssl req -new -x509 -nodes -keyout ca.key -out ca.crt -subj "/CN=my-ca"
+
+openssl genrsa -out server.key 2048
+
+#ORN KSOC
+openssl req -new -key server.key -subj "/CN=rest-api-server-service.jeevan-namespace.svc.cluster.local" -out server.csr -config server_csr.conf
+openssl req -in server.csr -noout -text
+
+#XRI CCC OE
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 365 -out server.crt -extensions v3_ext -extfile server_csr.conf
+openssl x509 -in server.crt -noout -text
+
+
+openssl req -new -key client.key -subj "/CN=rest-api-client-service.jeevan-namespace.svc.cluster.local" -out client.csr -config client_csr.conf
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -extensions v3_ext -extfile client_csr.conf
+

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: demo-server-v2
+ namespace: jeevan-namespace
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: demo-server
+   version: v2
+ template:
+  metadata:
+   labels:
+    app: demo-server
+    version: v2
+  spec:
+   containers:
+   - name: demo-server
+     image: 10.20.52.114:5000/demo-server:v2
+     imagePullPolicy: Always
+     ports:
+     - containerPort: 80
+     env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+

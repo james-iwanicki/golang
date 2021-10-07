@@ -1,0 +1,40 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v0.19.4
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+  name: rest-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions: {}
+  description: rest operator
+  displayName: rest-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: []
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - jeevan
+  links:
+  - name: Rest Operator
+    url: https://rest-operator.domain
+  maturity: alpha
+  provider:
+    name: jeevan
+  version: 0.0.1

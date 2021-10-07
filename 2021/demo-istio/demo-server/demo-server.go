@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"fmt"
 	"time"
+	"os"
 )
 
 var (
@@ -16,8 +17,9 @@ func init() {
 }
 
 func server_func(c *gin.Context) {
+	version := os.Getenv("version")
 	c.Writer.WriteHeader(http.StatusOK)
-	c.Writer.Write([]byte(fmt.Sprintf("Server %s\n", time.Now())))
+	c.Writer.Write([]byte(fmt.Sprintf("Server %s Version %s\n", time.Now(), version)))
 }
 
 func main() {

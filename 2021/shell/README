@@ -3,13 +3,26 @@ Build instructions:
 	Change the repository locations for your setup.
 		shell-client1:
 			docker build -t shell-client1 .;  
+		
+			For AWS ECR
 			docker tag shell-client1 <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1; 
 			docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client1;
+
+			For Baremetal 
+			docker tag shell-client1 10.20.52.114:5000/shell-client1
+			docker push 10.20.52.114:5000/shell-client1
+
                                 
 		shell-client2:
 			docker build -t shell-client2 .;  
+
+			For AWS ECR
 			docker tag shell-client2 <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2; 
 			docker push <AWS Account No>.dkr.ecr.us-west-2.amazonaws.com/shell-client2;
+
+			For Baremetal 
+			docker tag shell-client2 10.20.52.114:5000/shell-client2
+			docker push 10.20.52.114:5000/shell-client2
 
 Usage instructions:
 ------------------

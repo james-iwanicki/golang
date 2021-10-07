@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: rest-api-server
+ namespace: jeevan-namespace
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: rest-api-server
+ template:
+  metadata:
+   labels:
+    app: rest-api-server
+  spec:
+   containers:
+   - name: rest-api-server
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/rest-api-server
+     ports:
+     - containerPort: 80

@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
- name: demo-server-v1
- namespace: jeevan-namespace
+ name: demo-server-service
+ namespace: netscout-istio-demo
  labels:
   app: demo-server
 spec:

@@ -1,5 +1,6 @@
 FROM golang:alpine
 
+ENV version=development
 WORKDIR /build
 COPY go.mod .
 COPY . .
@@ -9,6 +10,6 @@ RUN go build demo-server.go
 WORKDIR /dist
 RUN cp /build/demo-server /dist/.
 
-CMD [ "/build/demo-server" ]
+CMD [ "/dist/demo-server" ]
 
 

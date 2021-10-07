@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: demo-server-development
+ namespace: netscout-istio-demo
+ labels:
+  app: demo-server
+  version: development
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: demo-server
+   version: development
+ template:
+  metadata:
+   labels:
+    app: demo-server
+    version: development
+  spec:
+   containers:
+   - name: demo-server
+     image: 134048686860.dkr.ecr.us-west-2.amazonaws.com/demo-server:development
+     ports:
+     - containerPort: 80

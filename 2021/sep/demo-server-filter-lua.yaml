@@ -1,0 +1,35 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: lua-filter
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      proxy:
+       proxyVersion: ^1\.11.*
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+       name: envoy.lua
+       typed_config:
+         "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+         inlineCode: |
+            function envoy_on_request(request_handle)
+                request_handle:headers():add("authorization", "it works!")
+            end
+            function envoy_on_response(response_handle)
+                  filter_name = "Mumbai ENVOY"
+                  response_handle:headers():add("my_Filter", filter_name)
+            end
