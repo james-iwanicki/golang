@@ -1,0 +1,24 @@
+# Delete Envoy filter and deployment
+kubectl delete EnvoyFilter golang-filter -n jeevan-namespace; kubectl delete deployment.apps/demo-server-v1 -n jeevan-namespace;
+
+# On build ubuntu box
+tinygo build -o ./main.go.wasm -scheduler=none -target=wasi ./main.go
+
+# Copy from build to node
+scp main.go.wasm root@10.20.51.8:/root/go/src/jeevan-savant/golang/2021/sep/wasm/.
+
+# Delete WASM config map and create new one
+kubectl delete configmaps network-filter -n jeevan-namespace; kubectl create configmap network-filter --from-file=network-filter.wasm=main.go.wasm -n jeevan-namespace
+
+# Create new deployment
+kubectl apply -f ../demo-server-deployment-v1.yaml; kubectl apply -f ./demo-server-filter-network-wasm.yaml;
+
+# Do curl request
+curl -v -X GET http://10.108.151.110/apis/v1/server
+
+# In another terminal watch sidecar log
+kubectl logs -f --tail=50 `kubectl get all -n jeevan-namespace|grep pod|grep demo-server|sed -e "s/\(.*\)[ ]*2\/2.*/\1/"` -n jeevan-namespace -c istio-proxy
+
+
+# Build new test server
+docker build -t demo-server .; docker tag demo-server 10.20.51.28:5000/demo-server:v1; docker push 10.20.51.28:5000/demo-server:v1;

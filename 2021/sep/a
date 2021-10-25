@@ -1,0 +1,33 @@
+curl -XPOST -d 'config_id: test_config_id
+static_config:
+ match_config:
+  any_match: true
+ output_config:
+  sinks:
+   - format: PROTO_BINARY_LENGTH_DELIMITED
+     file_per_tap:
+      path_prefix: jeevan' 'http://localhost:15000/tap'
+
+
+curl -XPOST -d 'config_id: test_config_id
+tap_config:
+  match_config:
+    any_match: true
+  output_config:
+    sinks:
+      - format: JSON_BODY_AS_STRING
+        file_per_tap:
+         path_prefix: jeevan
+    max_buffered_rx_bytes: 2097152
+    max_buffered_tx_bytes: 2097152' 'http://localhost:15000/tap'
+
+curl -XPOST -d 'config_id: test_config_id
+tap_config:
+  match_config:
+    any_match: true
+  output_config:
+    sinks:
+      - format: JSON_BODY_AS_STRING
+        file_per_tap:
+         path_prefix: jeevan' 'http://localhost:15000/tap'
+

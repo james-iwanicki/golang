@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: tap-filter-file
+  namespace: jeevan-namespace 
+spec:
+  workloadSelector:
+    labels:
+     app: demo-server
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+#        portNumber: 15001
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+       name: envoy.filters.http.tap
+       typed_config:
+        "@type": type.googleapis.com/envoy.extensions.filters.http.tap.v3.Tap
+        common_config:
+         admin_config:
+          config_id: test_config_id
+
+#        common_config:
+#         static_config:
+#          match_config:
+#           any_match: true
+#          output_config:
+#           sinks:
+#            - format: PROTO_BINARY_LENGTH_DELIMITED
+#              file_per_tap:
+#               path_prefix: jeevan 

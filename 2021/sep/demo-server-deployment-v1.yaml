@@ -14,10 +14,14 @@ spec:
    labels:
     app: demo-server
     version: v1
+   annotations:
+    sidecar.istio.io/userVolume: '[{"name":"network-filter","configMap":{"name":"network-filter"}}]'
+    sidecar.istio.io/userVolumeMount: '[{"mountPath":"/var/local/wasm","name":"network-filter"}]'
+    sidecar.istio.io/logLevel: "info"
   spec:
    containers:
    - name: demo-server
-     image: 10.20.52.114:5000/demo-server:v1
+     image: 10.20.51.28:5000/demo-server:v1
      imagePullPolicy: Always
      ports:
      - containerPort: 80

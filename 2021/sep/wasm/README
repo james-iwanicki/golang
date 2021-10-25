@@ -1,0 +1,3 @@
+kubectl create configmap http-filter --from-file=http-filter.wasm=main.go.wasm -n jeevan-namespace
+
+

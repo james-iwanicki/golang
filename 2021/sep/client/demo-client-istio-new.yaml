@@ -1,0 +1,50 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+ name: demo-client-gateway
+ namespace: jeevan-namespace
+spec:
+ selector:
+  istio: ingressgateway
+ clients:
+ - port:
+    name: http
+    protocol: HTTP
+    number: 80
+   hosts:
+   - "*"
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+ name: demo-client-virtual-service
+ namespace: jeevan-namespace
+spec:
+ hosts:
+ - "*"
+ gateways:
+ - demo-client-gateway
+ http:
+ - route:
+   - destination:
+      host: demo-client-service
+      subset: v1
+      port:
+       number: 80
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+ name: demo-client-destination-rule
+ namespace: jeevan-namespace
+spec:
+ host: demo-client-service
+ subsets:
+ - name: v1
+   labels:
+    app: demo-client
+    version: v1
