@@ -15,6 +15,7 @@ kubectl apply -f ../demo-server-deployment-v1.yaml; kubectl apply -f ./demo-serv
 
 # Do curl request
 curl -v -X GET http://10.108.151.110/apis/v1/server
+curl -v -X GET http://10.105.111.70/apis/v1/server
 
 # In another terminal watch sidecar log
 kubectl logs -f --tail=50 `kubectl get all -n jeevan-namespace|grep pod|grep demo-server|sed -e "s/\(.*\)[ ]*2\/2.*/\1/"` -n jeevan-namespace -c istio-proxy
