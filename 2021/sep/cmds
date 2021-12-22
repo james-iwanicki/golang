@@ -23,3 +23,10 @@ kubectl logs -f --tail=50 `kubectl get all -n jeevan-namespace|grep pod|grep dem
 
 # Build new test server
 docker build -t demo-server .; docker tag demo-server 10.20.51.28:5000/demo-server:v1; docker push 10.20.51.28:5000/demo-server:v1;
+
+kubectl delete deployment.apps/demo-client-v1 -n jeevan-namespace; go build demo-client.go;
+docker build -t demo-client .;
+docker tag demo-client 10.20.51.28:5000/demo-client:v1; docker push 10.20.51.28:5000/demo-client:v1;
+kubectl apply -f ./demo-client-deployment-v1.yaml
+kubectl logs -f --tail=50 `kubectl get all -n jeevan-namespace|grep pod|grep demo-client|sed -e "s/\(.*\)[ ]*2\/2.*/\1/"` -n jeevan-namespace -c demo-client
+
