@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: tdam-client-service
+ namespace: default
+spec:
+ selector:
+  app: tdam-client
+ ports:
+ - name: http
+   port: 80
+ type: NodePort
+

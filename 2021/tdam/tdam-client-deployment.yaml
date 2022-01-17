@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: tdam-client
+ namespace: default
+spec:
+ replicas: 2
+ selector:
+  matchLabels:
+   app: tdam-client
+ template:
+  metadata:
+   labels:
+    app: tdam-client
+  spec:
+   containers:
+   - name: tdam-client
+     image: aws-path/utah
+     env:
+     - name: clientID
+       value: "PUT YOUR TDAMERITRADE CLIENT ID HERE"
+     ports:
+     - containerPort: 80
+
+
