@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 ENV TZ=US/Denver
 RUN ln -s /usr/share/info/$TZ /etc/localtime && echo $TZ > /etc/timezone
