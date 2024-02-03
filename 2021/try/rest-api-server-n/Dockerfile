@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.22rc2-bookworm
 WORKDIR /build
 COPY go.mod .
 COPY . .
